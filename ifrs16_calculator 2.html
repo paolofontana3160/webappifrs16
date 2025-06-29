@@ -1,0 +1,1958 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IFRS 16 Lease Accounting Calculator (Lessee)</title>
+    <!-- Removed jspdf import as it's no longer needed -->
+    <style>
+        /* Basic CSS Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Body and Container Styling */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* Gradient background */
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Align content to the top */
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%; /* Ensure it takes full width on smaller screens */
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1); /* Soft shadow for depth */
+            overflow: hidden;
+            padding-bottom: 30px; /* Add some padding at the bottom */
+        }
+
+        /* Header Styling */
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%); /* Header gradient */
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+            position: relative; /* For positioning the button */
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 5px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        /* Removed .header-content and .download-btn styles */
+
+
+        /* Content Area Styling */
+        .content {
+            padding: 30px;
+        }
+
+        /* Form Section Styling */
+        .form-section {
+            background: #f8f9fa; /* Light grey background */
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-left: 5px solid #3498db; /* Blue left border */
+        }
+
+        .form-section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive grid */
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin-top: 8px;
+        }
+
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0;
+            font-weight: normal;
+            cursor: pointer;
+        }
+
+        .radio-group input[type="radio"] {
+            width: auto;
+            margin-right: 8px;
+        }
+
+        /* Button Styling */
+        .btn {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); /* Button gradient */
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px 10px 10px 0;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px); /* Lift effect on hover */
+            box-shadow: 0 8px 20px rgba(52, 152, 219, 0.3); /* Shadow on hover */
+        }
+
+        .btn:active {
+            transform: translateY(0); /* Press effect on click */
+        }
+
+        /* Results Section Styling */
+        .results-section {
+            background: #fff;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 2px solid #e9ecef;
+            display: none; /* Hidden by default */
+        }
+
+        .results-section.show {
+            display: block; /* Shown when calculations are done */
+        }
+
+        .results-section h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .calculation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .calc-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+
+        .calc-item label {
+            font-weight: 600;
+            color: #2c3e50;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .calc-item .value {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #27ae60; /* Green for values */
+        }
+
+        /* Journal Table Styling */
+        .journal-table-container { /* New container for horizontal scrolling */
+            overflow-x: auto;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .journal-table {
+            width: 100%; /* Ensure table takes full width of its container */
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden; /* For rounded corners to apply to internal content */
+            min-width: 1200px; /* Adjusted min-width for combined table */
+        }
+
+        .journal-table th,
+        .journal-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+            white-space: nowrap; /* Prevent content from wrapping */
+        }
+
+        .journal-table th {
+            background: #3498db;
+            color: white;
+            font-weight: 600;
+        }
+
+        .journal-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .debit {
+            color: #e74c3c; /* Red for debit */
+            font-weight: bold;
+        }
+
+        .credit {
+            color: #27ae60; /* Green for credit */
+            font-weight: bold;
+        }
+
+        /* Notes Section Styling */
+        .notes-section {
+            background: #e6f7ff; /* Light blue background for notes */
+            border-radius: 10px;
+            padding: 25px;
+            margin-top: 20px; /* Space from above content */
+            border-left: 5px solid #1890ff; /* Blue left border */
+        }
+
+        .notes-section h3 {
+            color: #096dd9;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            border-bottom: 1px solid #91d5ff; /* Lighter border for notes heading */
+            padding-bottom: 10px;
+        }
+
+        .notes-section ul {
+            padding-left: 20px;
+            list-style: none; /* Remove default bullet points */
+        }
+
+        .notes-section li {
+            margin-bottom: 10px;
+            color: #36454F; /* Darker text for readability */
+            font-size: 0.95em;
+        }
+
+        .notes-section li strong {
+            color: #096dd9; /* Highlight topic in notes */
+        }
+
+        /* Monthly Section Styling */
+        .monthly-section {
+            background: #fff3cd; /* Light yellow background */
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-left: 5px solid #ffc107; /* Orange left border */
+            display: none; /* Hidden by default */
+        }
+
+        /* Disclaimer Section Styling */
+        .disclaimer {
+            background: #e9ecef;
+            border-radius: 10px;
+            padding: 25px;
+            margin-top: 30px;
+            border-left: 5px solid #6c757d; /* Grey left border */
+        }
+
+        .disclaimer h3 {
+            color: #495057;
+            margin-bottom: 15px;
+        }
+
+        .disclaimer ul {
+            padding-left: 20px;
+        }
+
+        .disclaimer li {
+            margin-bottom: 8px;
+            color: #6c757d;
+        }
+
+        /* CSV Upload/Load Section */
+        .csv-input-section {
+            background: #f0f4f7;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-left: 5px solid #6c757d;
+        }
+        .csv-input-section h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        .csv-input-section .button-group,
+        .csv-input-section .file-input-group,
+        .csv-input-section .lease-select-group {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap; /* Allow wrapping on small screens */
+        }
+        .csv-input-section input[type="file"] {
+            flex-grow: 1;
+            max-width: 300px; /* Limit width */
+        }
+        .csv-input-section input[type="text"],
+        .csv-input-section select { /* Apply similar styles to select for consistency */
+            flex-grow: 1;
+            max-width: 200px;
+        }
+        .csv-input-section .btn {
+            padding: 10px 20px;
+            font-size: 14px;
+            margin: 0; /* Override previous button margin */
+        }
+        .csv-input-section label {
+            margin-bottom: 0; /* Align labels in line with inputs/buttons */
+        }
+        #leaseDetailsDisplay {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e9f5ff;
+            border: 1px solid #cce7ff;
+            border-radius: 8px;
+            font-size: 0.9em;
+            display: none; /* Hidden by default */
+        }
+        #leaseDetailsDisplay.show {
+            display: block;
+        }
+        #leaseDetailsDisplay strong {
+            color: #0056b3;
+        }
+
+
+        /* Modal for Confirmation - Still present but not used by Load button anymore */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1001; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 30px;
+            border: 1px solid #888;
+            border-radius: 10px;
+            width: 80%; /* Could be more responsive */
+            max-width: 600px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        .modal-content h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+        }
+
+        .modal-content p {
+            margin-bottom: 10px;
+        }
+
+        .modal-content .button-group {
+            margin-top: 25px;
+            text-align: right;
+        }
+
+        .modal-content .btn {
+            margin-left: 10px;
+            padding: 10px 20px;
+            font-size: 15px;
+        }
+
+        /* New sections for instructions and IFRS16 info */
+        .info-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-top: 30px;
+            border-left: 5px solid #3498db;
+        }
+        .info-section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .info-section h4 {
+            color: #3498db;
+            margin-top: 15px;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        .info-section p, .info-section ul, .info-section ol {
+            margin-bottom: 10px;
+        }
+        .info-section ul, .info-section ol {
+            padding-left: 20px;
+        }
+        .info-section li {
+            margin-bottom: 5px;
+        }
+        .info-section strong {
+            color: #2c3e50;
+        }
+        .info-section .loading-text {
+            text-align: center;
+            font-style: italic;
+            color: #6c757d;
+        }
+
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+            /* .header-content and .download-btn are removed from header */
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .calculation-grid {
+                grid-template-columns: 1fr;
+            }
+            .csv-input-section .button-group,
+            .csv-input-section .file-input-group,
+            .csv-input-section .lease-select-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .csv-input-section input[type="file"],
+            .csv-input-section input[type="text"],
+            .csv-input-section select {
+                max-width: 100%;
+            }
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>IFRS 16 Lease Accounting Calculator</h1>
+            <p>Dr. Paolo Fontana</p>
+            <p>Comprehensive Lease Accounting for Lessees</p>
+            <!-- Removed PDF download button from here -->
+        </div>
+
+        <div class="content">
+            <!-- CSV Input/Load Section -->
+            <div class="csv-input-section">
+                <h2>Manage Lease Data (CSV)</h2>
+                <div class="button-group">
+                    <button type="button" class="btn" onclick="generateSampleCSV()">Generate Sample Input CSV</button>
+                </div>
+                <div class="file-input-group">
+                    <label for="uploadCsv">Upload Lease Data CSV:</label>
+                    <input type="file" id="uploadCsv" accept=".csv" onchange="handleFileUpload(event)">
+                </div>
+                <div class="lease-select-group" id="leaseSelectGroup" style="display:none;">
+                    <label for="leaseCodeSelect">Select Lease by Code:</label>
+                    <select id="leaseCodeSelect" onchange="displaySelectedLeaseName()">
+                        <option value="">-- Select a Lease --</option>
+                    </select>
+                    <span id="selectedLeaseName" style="margin-left: 10px; font-weight: bold; color: #3498db;"></span>
+                    <button type="button" class="btn" onclick="loadSelectedLease()">Load Lease</button>
+                </div>
+                <div id="leaseDetailsDisplay" class="notes-section">
+                    <!-- Selected lease details will be displayed here for review -->
+                </div>
+            </div>
+
+            <!-- Input Form Section -->
+            <div class="form-section">
+                <h2>Lease Parameters Input</h2>
+                <form id="leaseForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="leaseName">Lease Name/Description:</label>
+                            <input type="text" id="leaseName" value="Restaurant Lease - Sample" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="commencementDate">Lease Commencement Date:</label>
+                            <input type="date" id="commencementDate" value="2025-07-01" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="nonCancellablePeriod">Non-Cancellable Period (Years):</label>
+                            <input type="number" id="nonCancellablePeriod" value="5" min="1" step="1" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="extensionPeriod">Extension Option Period (Years):</label>
+                            <input type="number" id="extensionPeriod" value="5" min="0" step="1" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Lessee Reasonably Certain to Exercise Extension?</label>
+                            <div class="radio-group">
+                                <label><input type="radio" name="exerciseExtension" value="yes"> Yes</label>
+                                <label><input type="radio" name="exerciseExtension" value="no" checked> No</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="monthlyPayment">Monthly Lease Payment:</label>
+                            <input type="number" id="monthlyPayment" value="10000" min="0" step="0.01" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="paymentTiming">Payment Due Date within Month:</label>
+                            <select id="paymentTiming" required>
+                                <option value="end" selected>End of Month</option>
+                                <option value="start">Start of Month</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="upfrontPayments">Any Upfront Fixed Payments:</label>
+                            <input type="number" id="upfrontPayments" value="0" min="0" step="0.01" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="borrowingRate">Lessee's Incremental Borrowing Rate (Annual %):</label>
+                            <input type="number" id="borrowingRate" value="5" min="0" step="0.01" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="initialDirectCosts">Initial Direct Costs incurred by Lessee:</label>
+                            <input type="number" id="initialDirectCosts" value="5000" min="0" step="0.01" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="leaseIncentives">Lease Incentives Received from Lessor:</label>
+                            <input type="number" id="leaseIncentives" value="15000" min="0" step="0.01" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="guaranteedResidual">Guaranteed Residual Value (RVG):</label>
+                            <input type="number" id="guaranteedResidual" value="20000" min="0" step="0.01" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="restorationCosts">Estimated Restoration/Dismantling Costs:</label>
+                            <input type="number" id="restorationCosts" value="0" min="0" step="0.01" required>
+                        </div>
+                        <!-- Currency Selection -->
+                        <div class="form-group">
+                            <label for="currencySymbol">Currency:</label>
+                            <select id="currencySymbol" required>
+                                <option value="€">Euro (€)</option>
+                                <option value="$">US Dollar ($)</option>
+                                <option value="£">British Pound (£)</option>
+                                <option value="¥">Japanese Yen (¥)</option>
+                                <option value="CHF">Swiss Franc (CHF)</option>
+                                <option value="A$">Australian Dollar (A$)</option>
+                                <option value="C$">Canadian Dollar (C$)</option>
+                                <option value="₹">Indian Rupee (₹)</option>
+                                <option value="元">Chinese Yuan (元)</option>
+                                <option value="NZ$">New Zealand Dollar (NZ$)</option>
+                                <option value="SEK">Swedish Krona (SEK)</option>
+                                <option value="NOK">Norwegian Krone (NOK)</option>
+                                <option value="DKK">Danish Krone (DKK)</option>
+                                <option value="RUB">Russian Ruble (RUB)</option>
+                                <option value="₩">South Korean Won (₩)</option>
+                                <option value="SGD">Singapore Dollar (SGD)</option>
+                                <option value="HK$">Hong Kong Dollar (HK$)</option>
+                                <option value="MXN">Mexican Peso (MXN)</option>
+                                <option value="BRL">Brazilian Real (BRL)</option>
+                                <option value="PLN">Polish Zloty (PLN)</option>
+                                <option value="THB">Thai Baht (THB)</option>
+                                <option value="IDR">Indonesian Rupiah (IDR)</option>
+                                <option value="PHP">Philippine Peso (PHP)</option>
+                                <option value="MYR">Malaysian Ringgit (MYR)</option>
+                                <option value="VND">Vietnamese Dong (VND)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn" onclick="calculateLease()">Calculate Lease</button>
+                </form>
+            </div>
+
+            <!-- Initial Recognition Results -->
+            <div id="initialResults" class="results-section">
+                <h3>Initial Recognition Calculations</h3>
+                <div class="calculation-grid" id="initialCalcGrid">
+                    <!-- Results will be populated here -->
+                </div>
+
+                <h3>Initial Journal Entry</h3>
+                <table class="journal-table" id="initialJournalTable">
+                    <thead>
+                        <tr>
+                            <th>Account</th>
+                            <th id="initialDebitHeader">Debit</th>
+                            <th id="initialCreditHeader">Credit</th>
+                        </tr>
+                    </thead>
+                    <tbody id="initialJournalBody">
+                        <!-- Journal entries will be populated here -->
+                    </tbody>
+                </table>
+
+                <!-- Notes Box -->
+                <div id="initialCalculationNotes" class="notes-section">
+                    <h3>How Initial Numbers Are Calculated</h3>
+                    <ul id="notesList">
+                        <!-- Notes will be populated here by JavaScript -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Monthly Accounting Section -->
+            <div id="monthlySection" class="monthly-section">
+                <h3>Monthly Accounting Entries</h3>
+                <div class="form-group">
+                    <label for="selectedMonth">Select Month for Entries:</label>
+                    <input type="month" id="selectedMonth" required>
+                </div>
+                <button type="button" class="btn" onclick="generateMonthlyEntries()">Generate Monthly Entries</button>
+
+                <div id="monthlyResults" class="results-section">
+                    <h3>Monthly Calculations</h3>
+                    <div class="calculation-grid" id="monthlyCalcGrid">
+                        <!-- Monthly calculations will be populated here -->
+                    </div>
+
+                    <h3>Monthly Journal Entries</h3>
+                    <table class="journal-table" id="monthlyJournalTable">
+                        <thead>
+                            <tr>
+                                <th>Account</th>
+                                <th id="monthlyDebitHeader">Debit</th>
+                                <th id="monthlyCreditHeader">Credit</th>
+                            </tr>
+                        </thead>
+                        <tbody id="monthlyJournalBody">
+                            <!-- Monthly journal entries will be populated here -->
+                        </tbody>
+                    </table>
+
+                    <!-- Monthly Notes Box -->
+                    <div id="monthlyCalculationNotes" class="notes-section">
+                        <h3>How Monthly Numbers Are Calculated</h3>
+                        <ul id="monthlyNotesList">
+                            <!-- Monthly notes will be populated here by JavaScript -->
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Combined Amortization Table -->
+                <div id="combinedAmortizationSection" class="results-section">
+                    <h3>Combined Lease Amortization Schedule (Lease Liability & ROU Asset)</h3>
+                    <div class="journal-table-container"> <!-- Wrapper for scrolling -->
+                        <table class="journal-table" id="combinedAmortizationTable">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2">Month</th>
+                                    <th rowspan="2">Lease Period End Date</th>
+                                    <th colspan="5">Lease Liability</th>
+                                    <th colspan="3">Right-of-Use Asset</th>
+                                </tr>
+                                <tr>
+                                    <th id="llOpeningBalanceHeader">Opening Balance</th>
+                                    <th id="llInterestExpenseHeader">Interest Expense</th>
+                                    <th id="llCashPaymentHeader">Cash Payment</th>
+                                    <th id="llPrincipalReductionHeader">Principal Reduction</th>
+                                    <th id="llClosingBalanceHeader">Closing Balance</th>
+                                    <th id="rouDepreciationPeriodHeader">Depreciation of Period</th>
+                                    <th id="rouAccumulatedDepreciationHeader">Accumulated Depreciation</th>
+                                    <th id="rouNetResidualValueROUHeader">Net Residual Value ROU</th>
+                                </tr>
+                            </thead>
+                            <tbody id="combinedAmortizationTableBody">
+                                <!-- Combined Amortization data will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button type="button" class="btn" onclick="downloadCombinedSchedule()">Download Combined Schedule as CSV</button>
+                </div>
+            </div>
+
+
+            <!-- Instructions Section -->
+            <div id="instructionsSection" class="info-section">
+                <h2>Web App User Guide</h2>
+                <p>This section provides step-by-step instructions on how to effectively use the IFRS 16 Lease Accounting Calculator.</p>
+
+                <h4>1. Manage Lease Data (CSV)</h4>
+                <ul>
+                    <li><strong>Generate Sample Input CSV:</strong> Click this button to download a pre-filled CSV file. This file contains example lease data formatted for easy upload, helping you understand the required structure.</li>
+                    <li><strong>Upload Lease Data CSV:</strong> Click "Choose File" and select your CSV file. The application will parse the data, and if successful, enable the lease selection dropdown.</li>
+                    <li><strong>Select Lease by Code:</strong> After uploading, use the dropdown menu to select a lease by its unique code. The corresponding lease name will be displayed next to the dropdown to help with selection.</li>
+                    <li><strong>Load Lease:</strong> Once you've selected a lease code, click this button to populate the "Lease Parameters Input" form with the details of the chosen lease.</li>
+                </ul>
+
+                <h4>2. Lease Parameters Input</h4>
+                <p>Review and adjust the lease parameters in this section. All fields are required for accurate calculation.</p>
+                <ul>
+                    <li><strong>Lease Name/Description:</strong> A descriptive name for your lease.</li>
+                    <li><strong>Lease Commencement Date:</strong> The official start date of your lease.</li>
+                    <li><strong>Non-Cancellable Period (Years):</strong> The initial, non-terminable term of the lease.</li>
+                    <li><strong>Extension Option Period (Years):</strong> Any additional period for which the lease can be extended.</li>
+                    <li><strong>Lessee Reasonably Certain to Exercise Extension?:</strong> Select 'Yes' if you are reasonably certain to extend the lease; this period will be included in the lease term. Otherwise, select 'No'.</li>
+                    <li><strong>Monthly Lease Payment:</strong> The fixed recurring payment amount.</li>
+                    <li><strong>Payment Due Date within Month:</strong> Choose if payments are due at the 'End of Month' (ordinary annuity) or 'Start of Month' (annuity due).</li>
+                    <li><strong>Any Upfront Fixed Payments:</strong> Any one-time fixed payments made at or before the lease commencement.</li>
+                    <li><strong>Lessee's Incremental Borrowing Rate (Annual %):</strong> Your company's estimated annual borrowing rate for a similar asset, used for discounting future cash flows.</li>
+                    <li><strong>Initial Direct Costs incurred by Lessee:</strong> Costs directly attributable to obtaining the lease (e.g., commissions, legal fees).</li>
+                    <li><strong>Lease Incentives Received from Lessor:</strong> Any incentives received from the lessor (e.g., rent-free periods, cash payments).</li>
+                    <li><strong>Guaranteed Residual Value (RVG):</strong> The portion of the residual value of the underlying asset that the lessee guarantees to the lessor.</li>
+                    <li><strong>Estimated Restoration/Dismantling Costs:</strong> Costs anticipated to be incurred at the end of the lease to dismantle or restore the asset site.</li>
+                    <li><strong>Currency:</strong> Select the currency symbol for all monetary values.</li>
+                    <li><strong>Calculate Lease:</strong> Click this button to perform all initial recognition calculations, generate the amortization schedule, and display results.</li>
+                </ul>
+
+                <h4>3. Review Results</h4>
+                <p>After clicking "Calculate Lease," several sections will become visible, providing detailed insights into your lease accounting.</p>
+                <ul>
+                    <li><strong>Initial Recognition Calculations & Journal Entry:</strong> This section displays the calculated initial Lease Liability and Right-of-Use (ROU) Asset values, along with the corresponding journal entry required at the lease commencement date. "How Initial Numbers Are Calculated" provides the formulas and components.</li>
+                    <li><strong>Monthly Accounting Entries:</strong> Use the "Select Month for Entries" input to choose a specific month. Click "Generate Monthly Entries" to see the detailed breakdown of interest expense, depreciation expense, cash payment, and the resulting balances for that period, along with the monthly journal entry.</li>
+                    <li><strong>Combined Lease Amortization Schedule (Lease Liability & ROU Asset):</strong> This comprehensive table provides a month-by-month amortization schedule for both the lease liability and the ROU asset over the entire lease term.</li>
+                    <li><strong>Download Combined Schedule as CSV:</strong> Click this button to export the full amortization schedule into a CSV file for further analysis or record-keeping.</li>
+                </ul>
+            </div>
+
+            <!-- IFRS 16 Info Section -->
+            <div id="ifrs16InfoSection" class="info-section">
+                <h2>Understanding IFRS 16 Lease Accounting (Lessee)</h2>
+                <div id="ifrs16Content">
+                    <h4>Introduction</h4>
+                    <p>IFRS 16 Leases fundamentally changed lease accounting for lessees, largely eliminating the distinction between operating and finance leases under previous standards. The core principle of IFRS 16 for lessees is that all leases (with limited exceptions) are recognised on the balance sheet as a 'right-of-use' (ROU) asset and a corresponding lease liability. This provides a more faithful representation of a lessee's assets and liabilities and improves comparability across entities.</p>
+
+                    <h4>Scope</h4>
+                    <p>IFRS 16 applies to all leases, with two optional practical expedients for lessees:</p>
+                    <ul>
+                        <li>**Short-term leases:** Leases with a lease term of 12 months or less at the commencement date that do not contain a purchase option.</li>
+                        <li>**Leases of low-value assets:** Leases where the underlying asset has a low value when new (e.g., personal computers, small items of office furniture). The IASB suggested a threshold of US$5,000 for low-value assets.</li>
+                    </ul>
+                    <p>If a lessee applies these practical expedients, lease payments are recognised as an expense on a straight-line basis over the lease term or another systematic basis.</p>
+
+                    <h4>Key Definitions</h4>
+                    <ul>
+                        <li>**Lease:** A contract, or part of a contract, that conveys the right to use an asset (the underlying asset) for a period of time in exchange for consideration.</li>
+                        <li>**Right-of-Use (ROU) Asset:** An asset representing a lessee's right to use an underlying asset for the lease term.</li>
+                        <li>**Lease Liability:** A lessee's obligation to make lease payments.</li>
+                        <li>**Lease Term:** The non-cancellable period of a lease, together with both:
+                            <ul>
+                                <li>Periods covered by an option to extend the lease if the lessee is reasonably certain to exercise that option.</li>
+                                <li>Periods covered by an option to terminate the lease if the lessee is reasonably certain not to exercise that option.</li>
+                            </ul>
+                        </li>
+                        <li>**Incremental Borrowing Rate (IBR):** The rate of interest that a lessee would have to pay to borrow funds over a similar term, and with a similar security, to obtain an asset of a similar value to the right-of-use asset in a similar economic environment. This is used if the interest rate implicit in the lease cannot be readily determined.</li>
+                    </ul>
+
+                    <h4>Recognition & Measurement (Initial)</h4>
+                    <p>At the commencement date, a lessee recognises a **right-of-use asset** and a **lease liability**.</p>
+                    <ul>
+                        <li>**Lease Liability:** Initially measured at the present value of the lease payments that are not paid at that date. The lease payments are discounted using the interest rate implicit in the lease or, if that cannot be readily determined, the lessee’s incremental borrowing rate. Lease payments typically include:
+                            <ul>
+                                <li>Fixed payments (less any lease incentives payable).</li>
+                                <li>Variable lease payments that depend on an index or a rate.</li>
+                                <li>Amounts expected to be payable by the lessee under residual value guarantees.</li>
+                                <li>The exercise price of a purchase option if the lessee is reasonably certain to exercise that option.</li>
+                                <li>Payments of penalties for terminating the lease, if the lease term reflects the lessee exercising an option to terminate the lease.</li>
+                            </ul>
+                        </li>
+                        <li>**Right-of-Use Asset:** Initially measured at cost, which comprises:
+                            <ul>
+                                <li>The amount of the initial measurement of the lease liability.</li>
+                                <li>Any lease payments made at or before the commencement date, less any lease incentives received.</li>
+                                <li>Any initial direct costs incurred by the lessee.</li>
+                                <li>An estimate of costs to be incurred by the lessee in dismantling and removing the underlying asset and restoring the site, to the extent that they are obligations incurred by the lessee as a consequence of having used the underlying asset.</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h4>Subsequent Measurement</h4>
+                    <ul>
+                        <li>**Lease Liability:**
+                            <ul>
+                                <li>Increased to reflect interest on the lease liability.</li>
+                                <li>Reduced to reflect the lease payments made.</li>
+                                <li>Remeasured to reflect any reassessments or lease modifications.</li>
+                            </ul>
+                            <p>Interest expense on the lease liability is recognised in profit or loss over the lease term, typically using the effective interest method, resulting in a decreasing interest expense over time.</p>
+                        </li>
+                        <li>**Right-of-Use Asset:**
+                            <ul>
+                                <li>Depreciated on a straight-line basis from the commencement date to the earlier of the end of the useful life of the right-of-use asset or the end of the lease term.</li>
+                                <li>Adjusted for any remeasurements of the lease liability.</li>
+                                <li>Tested for impairment in accordance with IAS 36 Impairment of Assets.</li>
+                            </ul>
+                            <p>Depreciation expense on the ROU asset is recognised in profit or loss, typically on a straight-line basis, resulting in a constant expense over the lease term.</p>
+                        </li>
+                    </ul>
+
+                    <h4>Presentation & Disclosure</h4>
+                    <ul>
+                        <li>**Balance Sheet:** Lessees present ROU assets separately from other assets. If not presented separately, ROU assets must be included within the same line item as underlying assets that are owned, and that fact disclosed. Lease liabilities are presented separately from other liabilities.</li>
+                        <li>**Income Statement:** Lessees recognise depreciation expense on the ROU asset and interest expense on the lease liability.</li>
+                        <li>**Cash Flow Statement:** Cash payments for the principal portion of the lease liability are presented within financing activities. Cash payments for the interest portion of the lease liability are presented within operating, investing, or financing activities (consistent application required). Short-term lease payments, payments for low-value asset leases, and variable lease payments not included in the lease liability are presented within operating activities.</li>
+                        <li>**Notes to Financial Statements:** Extensive disclosures are required, including qualitative and quantitative information about leasing activities, significant judgments, and amounts recognised in the financial statements.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Assumptions & Disclaimers -->
+            <div class="disclaimer">
+                <h3>Assumptions & Disclaimers</h3>
+                <ul>
+                    <li><strong>IFRS 16 Lessee Accounting:</strong> This calculator follows IFRS 16 standards for lessee accounting only.</li>
+                    <li><strong>Straight-line Depreciation:</strong> The ROU asset is depreciated using the straight-line method over the lease term.</li>
+                    <li><strong>Fixed Payments:</strong> Only fixed lease payments are considered. Variable payments are not included.</li>
+                    <li><strong>Guaranteed Residual Value:</strong> RVG is included in the lease liability calculation at present value.</li>
+                    <li><strong>No Reassessments:</strong> The calculator does not account for lease modifications or reassessments after initial recognition.</li>
+                    <li><strong>Educational Purpose:</strong> This tool is for educational purposes only and should not replace professional accounting advice.</li>
+                    <li><strong>Currency:</strong> All calculations are based on the selected currency.</li>
+                    <li><strong>Tax Implications:</strong> Local tax implications and variations are not considered.</li>
+                    <li><strong>Restoration Costs:</strong> Estimated restoration costs are treated as a provision with present value added to ROU asset.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lease Confirmation Modal -->
+    <div id="confirmLeaseModal" class="modal">
+        <div class="modal-content">
+            <h3>Confirm Lease Details</h3>
+            <p>Please review the details for the selected lease before loading:</p>
+            <div id="modalLeaseDetails">
+                <!-- Lease details will be populated here -->
+            </div>
+            <div class="button-group">
+                <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+                <button type="button" class="btn" onclick="confirmLoadLease()">Confirm & Load Lease</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables to store calculation results and loaded lease data
+        let leaseData = {};
+        let amortizationSchedule = [];
+        let loadedLeaseData = []; // Array to store lease data from uploaded CSV
+
+
+        // Helper function to show alerts (replaces problematic alert() calls)
+        function showAlert(message) {
+            const modal = document.createElement('div');
+            modal.style.position = 'fixed';
+            modal.style.top = '0';
+            modal.style.left = '0';
+            modal.style.width = '100%';
+            modal.style.height = '100%';
+            modal.style.backgroundColor = 'rgba(0,0,0,0.5)';
+            modal.style.display = 'flex';
+            modal.style.justifyContent = 'center';
+            modal.style.alignItems = 'center';
+            modal.style.zIndex = '1000';
+
+            const modalContent = document.createElement('div');
+            modalContent.style.backgroundColor = 'white';
+            modalContent.style.padding = '20px';
+            modalContent.style.borderRadius = '8px';
+            modalContent.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
+            modalContent.style.maxWidth = '400px';
+            modalContent.style.textAlign = 'center';
+
+            const messageText = document.createElement('p');
+            messageText.textContent = message;
+            messageText.style.marginBottom = '20px';
+            messageText.style.fontSize = '1.1em';
+
+            const closeButton = document.createElement('button');
+            closeButton.textContent = 'OK';
+            closeButton.style.padding = '10px 20px';
+            closeButton.style.backgroundColor = '#3498db';
+            closeButton.style.color = 'white';
+            closeButton.style.border = 'none';
+            closeButton.style.borderRadius = '5px';
+            closeButton.style.cursor = 'pointer';
+
+            closeButton.onclick = () => document.body.removeChild(modal);
+
+            modalContent.appendChild(messageText);
+            modalContent.appendChild(closeButton);
+            modal.appendChild(modalContent);
+            document.body.appendChild(modal);
+        }
+
+        // Helper function to close the confirmation modal
+        function closeModal() {
+            document.getElementById('confirmLeaseModal').style.display = 'none';
+        }
+
+        // Helper function to format currency
+        function formatCurrency(value) {
+            if (isNaN(value)) return value;
+            return leaseData.currencySymbol + value.toFixed(2);
+        }
+
+        // --- Removed LLM Call for IFRS 16 Info ---
+
+
+        // --- CSV Generation Function ---
+        function generateSampleCSV() {
+            const sampleData = [
+                {
+                    "Lease Code": "L001",
+                    "Lease Name/Description": "Restaurant Lease - Sample A",
+                    "Commencement Day": "1",
+                    "Commencement Month": "7",
+                    "Commencement Year": "2025",
+                    "Non-Cancellable Period (Years)": "5",
+                    "Extension Option Period (Years)": "5",
+                    "Exercise Extension (yes/no)": "no",
+                    "Monthly Lease Payment": "10000",
+                    "Payment Due Date within Month": "end",
+                    "Any Upfront Fixed Payments": "0",
+                    "Lessee's Incremental Borrowing Rate (Annual %)": "5",
+                    "Initial Direct Costs incurred by Lessee": "5000",
+                    "Lease Incentives Received from Lessor": "15000",
+                    "Guaranteed Residual Value (RVG)": "20000",
+                    "Estimated Restoration/Dismantling Costs": "0",
+                    "Currency": "€"
+                },
+                {
+                    "Lease Code": "L002",
+                    "Lease Name/Description": "Office Space - Downtown",
+                    "Commencement Day": "15",
+                    "Commencement Month": "8",
+                    "Commencement Year": "2025",
+                    "Non-Cancellable Period (Years)": "3",
+                    "Extension Option Period (Years)": "2",
+                    "Exercise Extension (yes/no)": "yes",
+                    "Monthly Lease Payment": "15000",
+                    "Payment Due Date within Month": "start",
+                    "Any Upfront Fixed Payments": "20000",
+                    "Lessee's Incremental Borrowing Rate (Annual %)": "6",
+                    "Initial Direct Costs incurred by Lessee": "7500",
+                    "Lease Incentives Received from Lessor": "5000",
+                    "Guaranteed Residual Value (RVG)": "0",
+                    "Estimated Restoration/Dismantling Costs": "10000",
+                    "Currency": "$"
+                },
+                {
+                    "Lease Code": "L003",
+                    "Lease Name/Description": "Warehouse Facility - North",
+                    "Commencement Day": "1",
+                    "Commencement Month": "1",
+                    "Commencement Year": "2026",
+                    "Non-Cancellable Period (Years)": "10",
+                    "Extension Option Period (Years)": "0",
+                    "Exercise Extension (yes/no)": "no",
+                    "Monthly Lease Payment": "25000",
+                    "Payment Due Date within Month": "end",
+                    "Any Upfront Fixed Payments": "0",
+                    "Lessee's Incremental Borrowing Rate (Annual %)": "4.5",
+                    "Initial Direct Costs incurred by Lessee": "10000",
+                    "Lease Incentives Received from Lessor": "0",
+                    "Guaranteed Residual Value (RVG)": "50000",
+                    "Estimated Restoration/Dismantling Costs": "0",
+                    "Currency": "£"
+                },
+                {
+                    "Lease Code": "L004",
+                    "Lease Name/Description": "Vehicle Fleet Lease",
+                    "Commencement Day": "1",
+                    "Commencement Month": "9",
+                    "Commencement Year": "2025",
+                    "Non-Cancellable Period (Years)": "4",
+                    "Extension Option Period (Years)": "0",
+                    "Exercise Extension (yes/no)": "no",
+                    "Monthly Lease Payment": "8000",
+                    "Payment Due Date within Month": "start",
+                    "Any Upfront Fixed Payments": "0",
+                    "Lessee's Incremental Borrowing Rate (Annual %)": "7",
+                    "Initial Direct Costs incurred by Lessee": "1000",
+                    "Lease Incentives Received from Lessor": "0",
+                    "Guaranteed Residual Value (RVG)": "0",
+                    "Estimated Restoration/Dismantling Costs": "0",
+                    "Currency": "C$"
+                },
+                {
+                    "Lease Code": "L005",
+                    "Lease Name/Description": "Manufacturing Equipment",
+                    "Commencement Day": "1",
+                    "Commencement Month": "10",
+                    "Commencement Year": "2025",
+                    "Non-Cancellable Period (Years)": "7",
+                    "Extension Option Period (Years)": "3",
+                    "Exercise Extension (yes/no)": "yes",
+                    "Monthly Lease Payment": "12000",
+                    "Payment Due Date within Month": "end",
+                    "Any Upfront Fixed Payments": "5000",
+                    "Lessee's Incremental Borrowing Rate (Annual %)": "5.5",
+                    "Initial Direct Costs incurred by Lessee": "3000",
+                    "Lease Incentives Received from Lessor": "1000",
+                    "Guaranteed Residual Value (RVG)": "15000",
+                    "Estimated Restoration/Dismantling Costs": "2000",
+                    "Currency": "¥"
+                },
+                {
+                    "Lease Code": "L006",
+                    "Lease Name/Description": "Retail Kiosk - Mall A",
+                    "Commencement Day": "1",
+                    "Commencement Month": "3",
+                    "Commencement Year": "2026",
+                    "Non-Cancellable Period (Years)": "2",
+                    "Extension Option Period (Years)": "1",
+                    "Exercise Extension (yes/no)": "no",
+                    "Monthly Lease Payment": "3000",
+                    "Payment Due Date within Month": "start",
+                    "Any Upfront Fixed Payments": "1000",
+                    "Lessee's Incremental Borrowing Rate (Annual %)": "8",
+                    "Initial Direct Costs incurred by Lessee": "500",
+                    "Lease Incentives Received from Lessor": "0",
+                    "Guaranteed Residual Value (RVG)": "0",
+                    "Estimated Restoration/Dismantling Costs": "0",
+                    "Currency": "A$"
+                },
+                {
+                    "Lease Code": "L007",
+                    "Lease Name/Description": "Logistics Hub",
+                    "Commencement Day": "1",
+                    "Commencement Month": "11",
+                    "Commencement Year": "2025",
+                    "Non-Cancellable Period (Years)": "8",
+                    "Extension Option Period (Years)": "2",
+                    "Exercise Extension (yes/no)": "yes",
+                    "Monthly Lease Payment": "30000",
+                    "Payment Due Date within Month": "end",
+                    "Any Upfront Fixed Payments": "0",
+                    "Lessee's Incremental Borrowing Rate (Annual %)": "4.8",
+                    "Initial Direct Costs incurred by Lessee": "12000",
+                    "Lease Incentives Received from Lessor": "8000",
+                    "Guaranteed Residual Value (RVG)": "25000",
+                    "Estimated Restoration/Dismantling Costs": "5000",
+                    "Currency": "SGD"
+                },
+                {
+                    "Lease Code": "L008",
+                    "Lease Name/Description": "IT Server Rack Space",
+                    "Commencement Day": "1",
+                    "Commencement Month": "12",
+                    "Commencement Year": "2025",
+                    "Non-Cancellable Period (Years)": "3",
+                    "Extension Option Period (Years)": "0",
+                    "Exercise Extension (yes/no)": "no",
+                    "Monthly Lease Payment": "5000",
+                    "Payment Due Date within Month": "end",
+                    "Any Upfront Fixed Payments": "0",
+                    "Lessee's Incremental Borrowing Rate (Annual %)": "6.2",
+                    "Initial Direct Costs incurred by Lessee": "0",
+                    "Lease Incentives Received from Lessor": "0",
+                    "Guaranteed Residual Value (RVG)": "0",
+                    "Estimated Restoration/Dismantling Costs": "0",
+                    "Currency": "CHF"
+                },
+                {
+                    "Lease Code": "L009",
+                    "Lease Name/Description": "Commercial Kitchen Rental",
+                    "Commencement Day": "1",
+                    "Commencement Month": "2",
+                    "Commencement Year": "2026",
+                    "Non-Cancellable Period (Years)": "5",
+                    "Extension Option Period (Years)": "1",
+                    "Exercise Extension (yes/no)": "yes",
+                    "Monthly Lease Payment": "7000",
+                    "Payment Due Date within Month": "start",
+                    "Any Upfront Fixed Payments": "3000",
+                    "Lessee's Incremental Borrowing Rate (Annual %)": "6.5",
+                    "Initial Direct Costs incurred by Lessee": "1500",
+                    "Lease Incentives Received from Lessor": "500",
+                    "Guaranteed Residual Value (RVG)": "10000",
+                    "Estimated Restoration/Dismantling Costs": "0",
+                    "Currency": "NZ$"
+                },
+                {
+                    "Lease Code": "L010",
+                    "Lease Name/Description": "Corporate Jet Lease",
+                    "Commencement Day": "1",
+                    "Commencement Month": "7",
+                    "Commencement Year": "2025",
+                    "Non-Cancellable Period (Years)": "15",
+                    "Extension Option Period (Years)": "5",
+                    "Exercise Extension (yes/no)": "no",
+                    "Monthly Lease Payment": "80000",
+                    "Payment Due Date within Month": "end",
+                    "Any Upfront Fixed Payments": "100000",
+                    "Lessee's Incremental Borrowing Rate (Annual %)": "4",
+                    "Initial Direct Costs incurred by Lessee": "50000",
+                    "Lease Incentives Received from Lessor": "20000",
+                    "Guaranteed Residual Value (RVG)": "500000",
+                    "Estimated Restoration/Dismantling Costs": "10000",
+                    "Currency": "$"
+                }
+            ];
+
+            const headers = Object.keys(sampleData[0]);
+            let csvContent = headers.map(h => `"${h}"`).join(",") + "\n";
+
+            sampleData.forEach(row => {
+                const values = headers.map(header => {
+                    let value = row[header];
+                    return `"${value}"`;
+                });
+                csvContent += values.join(",") + "\n";
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute('download', 'ifrs16_sample_leases.csv');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // --- CSV Upload and Parsing ---
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) {
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                parseCSV(text);
+            };
+            reader.readAsText(file);
+        }
+
+        function parseCSV(text) {
+            loadedLeaseData = []; // Clear previous data
+            const lines = text.trim().split('\n');
+            if (lines.length <= 1) { // Only header or empty file
+                showAlert("CSV file is empty or contains only headers. Please upload a CSV with lease data.");
+                document.getElementById('leaseSelectGroup').style.display = 'none';
+                return;
+            }
+
+            const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, '')); // Remove quotes from headers
+
+            // Mapping headers to their corresponding IDs in the form elements
+            const headerToIdMap = {
+                "Lease Code": "leaseCode", // New internal field for lookup
+                "Lease Name/Description": "leaseName",
+                "Commencement Day": "commencementDay", // New
+                "Commencement Month": "commencementMonth", // New
+                "Commencement Year": "commencementYear", // New
+                "Non-Cancellable Period (Years)": "nonCancellablePeriod",
+                "Extension Option Period (Years)": "extensionPeriod",
+                "Exercise Extension (yes/no)": "exerciseExtension",
+                "Monthly Lease Payment": "monthlyPayment",
+                "Payment Due Date within Month": "paymentTiming",
+                "Any Upfront Fixed Payments": "upfrontPayments",
+                "Lessee's Incremental Borrowing Rate (Annual %)": "borrowingRate",
+                "Initial Direct Costs incurred by Lessee": "initialDirectCosts",
+                "Lease Incentives Received from Lessor": "leaseIncentives",
+                "Guaranteed Residual Value (RVG)": "guaranteedResidual",
+                "Estimated Restoration/Dismantling Costs": "restorationCosts",
+                "Currency": "currencySymbol"
+            };
+
+            for (let i = 1; i < lines.length; i++) {
+                const values = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.trim().replace(/"/g, '')); // Split by comma outside quotes
+                if (values.length !== headers.length) {
+                    console.warn(`Skipping row ${i + 1} due to mismatch in column count.`);
+                    continue;
+                }
+
+                let rowData = {};
+                let tempCommencementDay, tempCommencementMonth, tempCommencementYear;
+
+                headers.forEach((header, index) => {
+                    const mappedId = headerToIdMap[header];
+                    let value = values[index];
+
+                    if (mappedId) {
+                        // Special handling for date components
+                        if (mappedId === "commencementDay") {
+                            tempCommencementDay = parseInt(value);
+                        } else if (mappedId === "commencementMonth") {
+                            tempCommencementMonth = parseInt(value);
+                        } else if (mappedId === "commencementYear") {
+                            tempCommencementYear = parseInt(value);
+                        }
+                        // Convert other numeric fields from string to number
+                        else if (["nonCancellablePeriod", "extensionPeriod", "monthlyPayment", "upfrontPayments",
+                                 "borrowingRate", "initialDirectCosts", "leaseIncentives", "guaranteedResidual",
+                                 "restorationCosts"].includes(mappedId)) {
+                            rowData[mappedId] = parseFloat(value);
+                        } else {
+                            rowData[mappedId] = value;
+                        }
+                    }
+                });
+
+                // After iterating through all headers, construct the Date object
+                if (!isNaN(tempCommencementYear) && !isNaN(tempCommencementMonth) && !isNaN(tempCommencementDay) &&
+                    tempCommencementMonth >= 1 && tempCommencementMonth <= 12 &&
+                    tempCommencementDay >= 1 && tempCommencementDay <= 31) { // Basic sanity check for day/month
+                    // Month in Date constructor is 0-indexed, so subtract 1
+                    const constructedDate = new Date(tempCommencementYear, tempCommencementMonth - 1, tempCommencementDay);
+                    // Verify if the constructed date is valid AND if the year/month/day match what was input (to catch invalid dates like Feb 30)
+                    if (isNaN(constructedDate.getTime()) ||
+                        constructedDate.getFullYear() !== tempCommencementYear ||
+                        constructedDate.getMonth() !== (tempCommencementMonth - 1) ||
+                        constructedDate.getDate() !== tempCommencementDay) {
+                        console.warn(`Invalid date constructed for lease in row ${i + 1}: ${tempCommencementYear}-${tempCommencementMonth}-${tempCommencementDay}. This lease may have calculation issues.`);
+                        rowData.commencementDate = null; // Mark as null if invalid
+                    } else {
+                        rowData.commencementDate = constructedDate;
+                    }
+                } else {
+                    rowData.commencementDate = null; // No date components found or invalid numbers
+                    console.warn(`Missing or invalid date components for lease in row ${i + 1}.`);
+                }
+                loadedLeaseData.push(rowData);
+            }
+
+            if (loadedLeaseData.length > 0) {
+                document.getElementById('leaseSelectGroup').style.display = 'flex';
+                populateLeaseDropdown(); // Populate the dropdown
+                showAlert(`Successfully loaded ${loadedLeaseData.length} leases from CSV. You can now select a lease by code.`);
+                console.log("Loaded Lease Data:", loadedLeaseData);
+            } else {
+                document.getElementById('leaseSelectGroup').style.display = 'none';
+                showAlert("No valid lease data found in the CSV file. Please check the format.");
+                console.error("No valid lease data loaded.");
+            }
+        }
+
+        // --- Populate Lease Dropdown ---
+        function populateLeaseDropdown() {
+            const leaseSelect = document.getElementById('leaseCodeSelect');
+            leaseSelect.innerHTML = '<option value="">-- Select a Lease --</option>'; // Clear and add default
+
+            loadedLeaseData.forEach(lease => {
+                if (lease.leaseCode) { // Only add if a lease code exists
+                    const option = document.createElement('option');
+                    option.value = lease.leaseCode;
+                    option.textContent = lease.leaseCode + " - " + (lease.leaseName || 'No Name');
+                    leaseSelect.appendChild(option);
+                }
+            });
+            displaySelectedLeaseName(); // Clear/set initially displayed name
+        }
+
+        // --- Display Selected Lease Name ---
+        function displaySelectedLeaseName() {
+            const leaseSelect = document.getElementById('leaseCodeSelect');
+            const selectedLeaseNameSpan = document.getElementById('selectedLeaseName');
+            const selectedCode = leaseSelect.value;
+
+            if (selectedCode) {
+                const foundLease = loadedLeaseData.find(lease => lease.leaseCode === selectedCode);
+                if (foundLease) {
+                    selectedLeaseNameSpan.textContent = foundLease.leaseName || 'No Name';
+                } else {
+                    selectedLeaseNameSpan.textContent = 'Lease not found';
+                }
+            } else {
+                selectedLeaseNameSpan.textContent = ''; // Clear if no lease selected
+            }
+        }
+
+        // --- Select and Load Lease by Code ---
+        function loadSelectedLease() {
+            const leaseSelect = document.getElementById('leaseCodeSelect');
+            const leaseCode = leaseSelect.value.trim(); // Get value from dropdown
+
+            if (!leaseCode) {
+                showAlert("Please select a Lease Code from the dropdown.");
+                return;
+            }
+
+            const foundLease = loadedLeaseData.find(lease => lease.leaseCode === leaseCode);
+
+            if (foundLease) {
+                displayLeaseDetailsInModal(foundLease);
+                document.getElementById('confirmLeaseModal').style.display = 'flex'; // Still use modal for confirmation
+            } else {
+                showAlert(`Lease with code "${leaseCode}" not found. Please check the code or upload a valid CSV.`);
+            }
+        }
+
+        function displayLeaseDetailsInModal(lease) {
+            const modalBody = document.getElementById('modalLeaseDetails');
+            let commencementDateStr = lease.commencementDate instanceof Date && !isNaN(lease.commencementDate.getTime())
+                                    ? lease.commencementDate.toLocaleDateString('en-CA') // YYYY-MM-DD
+                                    : 'N/A';
+            let html = `
+                <p><strong>Lease Code:</strong> ${lease.leaseCode}</p>
+                <p><strong>Lease Name/Description:</strong> ${lease.leaseName}</p>
+                <p><strong>Commencement Date:</strong> ${commencementDateStr}</p>
+                <p><strong>Non-Cancellable Period (Years):</strong> ${lease.nonCancellablePeriod}</p>
+                <p><strong>Extension Option Period (Years):</strong> ${lease.extensionPeriod}</p>
+                <p><strong>Exercise Extension:</strong> ${lease.exerciseExtension}</p>
+                <p><strong>Monthly Lease Payment:</strong> ${lease.currencySymbol}${lease.monthlyPayment.toFixed(2)}</p>
+                <p><strong>Payment Timing:</strong> ${lease.paymentTiming}</p>
+                <p><strong>Upfront Fixed Payments:</strong> ${lease.currencySymbol}${lease.upfrontPayments.toFixed(2)}</p>
+                <p><strong>Incremental Borrowing Rate (Annual %):</strong> ${lease.borrowingRate}%</p>
+                <p><strong>Initial Direct Costs:</strong> ${lease.currencySymbol}${lease.initialDirectCosts.toFixed(2)}</p>
+                <p><strong>Lease Incentives:</strong> ${lease.currencySymbol}${lease.leaseIncentives.toFixed(2)}</p>
+                <p><strong>Guaranteed Residual Value (RVG):</strong> ${lease.currencySymbol}${lease.guaranteedResidual.toFixed(2)}</p>
+                <p><strong>Restoration Costs:</strong> ${lease.currencySymbol}${lease.restorationCosts.toFixed(2)}</p>
+                <p><strong>Currency:</strong> ${lease.currencySymbol}</p>
+            `;
+            modalBody.innerHTML = html;
+        }
+
+        function confirmLoadLease() {
+            const leaseSelect = document.getElementById('leaseCodeSelect');
+            const leaseCode = leaseSelect.value.trim(); // Get value from dropdown
+            const confirmedLease = loadedLeaseData.find(lease => lease.leaseCode === leaseCode);
+
+            if (confirmedLease) {
+                document.getElementById('leaseName').value = confirmedLease.leaseName;
+                
+                // Set the date input value. confirmedLease.commencementDate is already a Date object from parseCSV
+                if (confirmedLease.commencementDate instanceof Date && !isNaN(confirmedLease.commencementDate.getTime())) {
+                    document.getElementById('commencementDate').value = confirmedLease.commencementDate.toISOString().split('T')[0];
+                } else {
+                    showAlert("Warning: Lease Commencement Date for this lease is invalid. Please manually correct it.");
+                    document.getElementById('commencementDate').value = ''; // Clear the input if the date is bad
+                }
+
+                document.getElementById('nonCancellablePeriod').value = confirmedLease.nonCancellablePeriod;
+                document.getElementById('extensionPeriod').value = confirmedLease.extensionPeriod;
+                document.querySelector(`input[name="exerciseExtension"][value="${confirmedLease.exerciseExtension}"]`).checked = true;
+                document.getElementById('monthlyPayment').value = confirmedLease.monthlyPayment;
+                document.getElementById('paymentTiming').value = confirmedLease.paymentTiming;
+                document.getElementById('upfrontPayments').value = confirmedLease.upfrontPayments;
+                document.getElementById('borrowingRate').value = confirmedLease.borrowingRate;
+                document.getElementById('initialDirectCosts').value = confirmedLease.initialDirectCosts;
+                document.getElementById('leaseIncentives').value = confirmedLease.leaseIncentives;
+                document.getElementById('guaranteedResidual').value = confirmedLease.guaranteedResidual;
+                document.getElementById('restorationCosts').value = confirmedLease.restorationCosts;
+                document.getElementById('currencySymbol').value = confirmedLease.currencySymbol;
+
+                closeModal();
+                calculateLease(); // Recalculate with the new data
+                showAlert(`Lease "${confirmedLease.leaseName}" loaded successfully!`);
+            } else {
+                showAlert("Error: Could not find the selected lease data. Please try again.");
+                closeModal();
+            }
+        }
+
+
+        function calculateLease() {
+            // Get form values
+            const commencementDateElement = document.getElementById('commencementDate');
+            // Use valueAsDate for reliable Date object retrieval from date input
+            const parsedCommencementDate = commencementDateElement.valueAsDate;
+
+            // Input Validation: Check if the parsed date is valid
+            if (!parsedCommencementDate || isNaN(parsedCommencementDate.getTime())) { // Check for null/undefined or Invalid Date
+                showAlert("Please enter a valid Lease Commencement Date (YYYY-MM-DD format).");
+                console.error("Invalid commencementDate from input.valueAsDate:", commencementDateElement.value, parsedCommencementDate);
+                return;
+            }
+
+            const formData = {
+                leaseName: document.getElementById('leaseName').value,
+                commencementDate: parsedCommencementDate, // This is now guaranteed to be a valid Date object
+                nonCancellablePeriod: parseInt(document.getElementById('nonCancellablePeriod').value),
+                extensionPeriod: parseInt(document.getElementById('extensionPeriod').value),
+                exerciseExtension: document.querySelector('input[name="exerciseExtension"]:checked').value,
+                monthlyPayment: parseFloat(document.getElementById('monthlyPayment').value),
+                paymentTiming: document.getElementById('paymentTiming').value,
+                upfrontPayments: parseFloat(document.getElementById('upfrontPayments').value),
+                borrowingRate: parseFloat(document.getElementById('borrowingRate').value),
+                initialDirectCosts: parseFloat(document.getElementById('initialDirectCosts').value),
+                leaseIncentives: parseFloat(document.getElementById('leaseIncentives').value),
+                guaranteedResidual: parseFloat(document.getElementById('guaranteedResidual').value),
+                restorationCosts: parseFloat(document.getElementById('restorationCosts').value),
+                currencySymbol: document.getElementById('currencySymbol').value
+            };
+
+            // Rest of Input Validation
+            if (!formData.leaseName || isNaN(formData.nonCancellablePeriod) ||
+                isNaN(formData.extensionPeriod) || isNaN(formData.monthlyPayment) || isNaN(formData.upfrontPayments) ||
+                isNaN(formData.borrowingRate) || isNaN(formData.initialDirectCosts) || isNaN(formData.leaseIncentives) ||
+                isNaN(formData.guaranteedResidual) || isNaN(formData.restorationCosts) ||
+                formData.nonCancellablePeriod < 1 || formData.monthlyPayment < 0 || formData.borrowingRate <= 0 ||
+                formData.initialDirectCosts < 0 || formData.leaseIncentives < 0 || formData.guaranteedResidual < 0 ||
+                formData.restorationCosts < 0) {
+                showAlert("Please ensure all non-date inputs are valid. Numeric fields must be non-negative, and Lease Term must be at least 1 year.");
+                return;
+            }
+
+
+            // Calculate lease term
+            const leaseTermYears = formData.exerciseExtension === 'yes' ?
+                formData.nonCancellablePeriod + formData.extensionPeriod :
+                formData.nonCancellablePeriod;
+            const leaseTermMonths = leaseTermYears * 12;
+
+            // Calculate monthly discount rate with high precision
+            const annualIbr = formData.borrowingRate / 100;
+            const monthlyIbr = Math.pow(1 + annualIbr, 1/12) - 1;
+
+            // Calculate Present Value of Monthly Lease Payments
+            let pvLeasePayments = 0;
+
+            if (formData.paymentTiming === 'end') {
+                // Ordinary annuity (payments at end of period)
+                pvLeasePayments = formData.monthlyPayment *
+                    ((1 - Math.pow(1 + monthlyIbr, -leaseTermMonths)) / monthlyIbr);
+            } else {
+                // Annuity due (payments at start of period)
+                pvLeasePayments = formData.monthlyPayment *
+                    ((1 - Math.pow(1 + monthlyIbr, -leaseTermMonths)) / monthlyIbr) * (1 + monthlyIbr);
+            }
+
+            // Calculate PV of guaranteed residual value
+            const pvRVG = formData.guaranteedResidual * Math.pow(1 + monthlyIbr, -leaseTermMonths);
+
+            // Calculate PV of restoration costs
+            const pvRestorationCosts = formData.restorationCosts * Math.pow(1 + monthlyIbr, -leaseTermMonths);
+
+            // Calculate Initial Lease Liability (upfront payments are added here)
+            // IFRS 16 para 24(a): Lease liability initially measured at PV of lease payments not paid at commencement.
+            // Payments at or before commencement are adjusted.
+            // For fixed upfront payments, their PV is simply their value at time 0.
+            const initialLeaseLiability = pvLeasePayments + pvRVG + formData.upfrontPayments; // Correctly include upfront payments here.
+
+            // Calculate Initial ROU Asset
+            const initialRouAsset = initialLeaseLiability + formData.initialDirectCosts -
+                formData.leaseIncentives + pvRestorationCosts;
+
+            // Calculate Monthly Depreciation
+            const monthlyDepreciation = initialRouAsset / leaseTermMonths;
+
+            // Store results globally
+            leaseData = {
+                ...formData,
+                leaseTermYears,
+                leaseTermMonths,
+                monthlyIbr,
+                initialLeaseLiability,
+                initialRouAsset,
+                monthlyDepreciation,
+                pvRestorationCosts,
+                pvRVG,
+                pvLeasePayments
+            };
+
+            // Generate amortization schedule
+            generateAmortizationSchedule();
+
+            // Display results
+            displayInitialResults();
+            displayCombinedAmortization(); // Call combined display function
+
+            // Show monthly section
+            document.getElementById('monthlySection').style.display = 'block';
+            document.getElementById('combinedAmortizationSection').classList.add('show');
+
+
+            // Set default month for monthly calculations to the month of the first payment
+            const defaultMonthForSelector = new Date(formData.commencementDate);
+            document.getElementById('selectedMonth').value =
+                defaultMonthForSelector.getFullYear() + '-' + String(defaultMonthForSelector.getMonth() + 1).padStart(2, '0');
+
+            console.log('calculateLease executed. leaseData:', leaseData, 'amortizationSchedule length:', amortizationSchedule.length);
+        }
+
+        function generateAmortizationSchedule() {
+            amortizationSchedule = [];
+            let currentLiability = leaseData.initialLeaseLiability;
+            let currentAccumulatedDepreciation = 0; // Initialize accumulated depreciation
+            // Ensure commencementDate used here is the validated Date object from leaseData
+            const commencementDate = leaseData.commencementDate;
+
+            // --- Add Month 0 (Initial Recognition) ---
+            // Represents the values at the exact lease commencement date (T=0)
+            // before any monthly payments, interest, or depreciation take effect.
+            // The initial lease liability calculated (leaseData.initialLeaseLiability)
+            // already includes the PV of upfront payments.
+            // If upfront payments are made *at* commencement, they reduce the initial liability.
+            let liabilityAfterUpfrontPayment = leaseData.initialLeaseLiability - leaseData.upfrontPayments;
+
+            amortizationSchedule.push({
+                month: 0, // Special entry for initial values
+                // Use a safe string representation for leaseDate in the schedule
+                leaseDate: commencementDate.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' }),
+                openingBalance: leaseData.initialLeaseLiability, // Initial liability before any payments at T=0
+                interestExpense: 0, // No interest accrues at point 0
+                payment: leaseData.upfrontPayments, // Upfront payments are the 'cash flow' at T=0
+                principalReduction: leaseData.upfrontPayments, // Upfront payments directly reduce liability
+                closingBalance: liabilityAfterUpfrontPayment, // Liability after initial upfront payment
+                depreciationPeriod: 0, // No depreciation at T=0
+                accumulatedDepreciation: 0, // No accumulated depreciation at T=0
+                netResidualValueROU: leaseData.initialRouAsset // ROU asset at its initial capitalized value
+            });
+
+            // Set the starting liability for the first actual lease period (Month 1)
+            let currentLiabilityForPeriod = liabilityAfterUpfrontPayment;
+
+            // Loop for subsequent months (Month 1 onwards, 1-indexed in output, 0-indexed for array `i` calculation)
+            for (let i = 0; i < leaseData.leaseTermMonths; i++) {
+                let interestExpense, principalReduction, payment;
+                let openingBalanceForPeriod = currentLiabilityForPeriod; // Opening balance for the current period
+
+                // Determine the actual end date of this period
+                // For i=0, this is the end of the first month after commencement.
+                const periodEndDate = new Date(commencementDate.getFullYear(), commencementDate.getMonth() + i + 1, 0);
+
+                if (leaseData.paymentTiming === 'end') {
+                    // Ordinary Annuity: Interest calculated on opening balance, then payment.
+                    interestExpense = openingBalanceForPeriod * leaseData.monthlyIbr;
+                    payment = leaseData.monthlyPayment;
+                    principalReduction = payment - interestExpense;
+                    currentLiabilityForPeriod = openingBalanceForPeriod - principalReduction;
+                } else { // Payment at start of month (Annuity Due)
+                    // Annuity Due: Interest calculated on opening balance, then payment.
+                    // The initial Lease Liability calculation already handled the effect of 'payment at start'.
+                    // For each period, standard effective interest method applies.
+                    interestExpense = openingBalanceForPeriod * leaseData.monthlyIbr;
+                    payment = leaseData.monthlyPayment;
+                    principalReduction = payment - interestExpense;
+                    currentLiabilityForPeriod = openingBalanceForPeriod - principalReduction;
+                }
+
+                currentAccumulatedDepreciation += leaseData.monthlyDepreciation;
+                let netResidualValue = leaseData.initialRouAsset - currentAccumulatedDepreciation;
+
+                if (i === leaseData.leaseTermMonths - 1) { // Last month of the lease term
+                    // Ensure the closing balance aligns with PV of RVG at the end, considering potential floating point errors.
+                    currentLiabilityForPeriod = leaseData.pvRVG;
+                     if (Math.abs(currentLiabilityForPeriod) < 0.01) currentLiabilityForPeriod = 0;
+
+                    netResidualValue = leaseData.initialRouAsset - (leaseData.monthlyDepreciation * leaseData.leaseTermMonths);
+                    if (Math.abs(netResidualValue) < 0.01) netResidualValue = 0; // Avoid tiny floating point remainders
+                }
+
+                amortizationSchedule.push({
+                    month: i + 1, // Actual period number (1 to N)
+                    leaseDate: periodEndDate.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' }),
+                    openingBalance: openingBalanceForPeriod,
+                    interestExpense: interestExpense,
+                    payment: payment,
+                    principalReduction: principalReduction,
+                    closingBalance: currentLiabilityForPeriod,
+                    depreciationPeriod: leaseData.monthlyDepreciation,
+                    accumulatedDepreciation: currentAccumulatedDepreciation,
+                    netResidualValueROU: netResidualValue
+                });
+            }
+        }
+
+        function displayInitialResults() {
+            const calcGrid = document.getElementById('initialCalcGrid');
+            const journalBody = document.getElementById('initialJournalBody');
+            const notesList = document.getElementById('notesList');
+
+            // Clear previous results
+            calcGrid.innerHTML = '';
+            journalBody.innerHTML = '';
+            notesList.innerHTML = '';
+
+            // Update currency labels in headers
+            document.getElementById('initialDebitHeader').textContent = `Debit (${leaseData.currencySymbol})`;
+            document.getElementById('initialCreditHeader').textContent = `Credit (${leaseData.currencySymbol})`;
+
+            // Display calculations
+            const calculations = [
+                { label: 'Lease Term (Years)', value: leaseData.leaseTermYears },
+                { label: 'Lease Term (Months)', value: leaseData.leaseTermMonths },
+                { label: 'Monthly Discount Rate (%)', value: (leaseData.monthlyIbr * 100).toFixed(4) },
+                { label: `Initial Lease Liability (${leaseData.currencySymbol})`, value: formatCurrency(leaseData.initialLeaseLiability) },
+                { label: `Initial ROU Asset (${leaseData.currencySymbol})`, value: formatCurrency(leaseData.initialRouAsset) },
+                { label: `Monthly Depreciation (${leaseData.currencySymbol})`, value: formatCurrency(leaseData.monthlyDepreciation) }
+            ];
+
+            calculations.forEach(calc => {
+                const calcItem = document.createElement('div');
+                calcItem.className = 'calc-item';
+                calcItem.innerHTML = `
+                    <label>${calc.label}:</label>
+                    <span class="value">${calc.value}</span>
+                `;
+                calcGrid.appendChild(calcItem);
+            });
+
+            // Display initial journal entry
+            const journalEntries = [
+                { account: 'Right-of-Use Asset', debit: formatCurrency(leaseData.initialRouAsset), credit: '-' }
+            ];
+
+            if (leaseData.upfrontPayments > 0) {
+                journalEntries.unshift({ account: 'Cash (Upfront Payment)', debit: '-', credit: formatCurrency(leaseData.upfrontPayments) });
+                journalEntries.unshift({ account: 'Lease Liability', debit: formatCurrency(leaseData.upfrontPayments), credit: '-' });
+            }
+
+            journalEntries.push({ account: 'Lease Liability', debit: '-', credit: formatCurrency(leaseData.initialLeaseLiability) });
+
+            if (leaseData.initialDirectCosts > 0) {
+                journalEntries.push({ account: 'Cash (Initial Direct Costs)', debit: '-', credit: formatCurrency(leaseData.initialDirectCosts) });
+            }
+
+            if (leaseData.leaseIncentives > 0) {
+                journalEntries.push({ account: 'Cash (Lease Incentives)', debit: formatCurrency(leaseData.leaseIncentives), credit: '-' });
+            }
+
+            if (leaseData.pvRestorationCosts > 0) {
+                journalEntries.push({ account: 'Provision for Restoration', debit: '-', credit: formatCurrency(leaseData.pvRestorationCosts) });
+            }
+
+            journalEntries.forEach(entry => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${entry.account}</td>
+                    <td class="${entry.debit !== '-' ? 'debit' : ''}">${entry.debit}</td>
+                    <td class="${entry.credit !== '-' ? 'credit' : ''}">${entry.credit}</td>
+                `;
+                journalBody.appendChild(row);
+            });
+
+            // Populate Notes for Initial Calculation
+            let notesHtml = `
+                <li><strong>Lease Term:</strong> This is the non-cancellable period of the lease (<span>${leaseData.nonCancellablePeriod} years</span>). If the lessee is reasonably certain to exercise an extension option (<span>${leaseData.extensionPeriod} years</span>), that period is added. In this case, 'No' was selected for certainty, so the term is ${leaseData.leaseTermYears} years or ${leaseData.leaseTermMonths} months. <span style="color: blue;">[Total: ${leaseData.leaseTermYears} years, ${leaseData.leaseTermMonths} months]</span></li>
+                <li><strong>Monthly Discount Rate (IBR):</strong> The annual Incremental Borrowing Rate (<span>${leaseData.borrowingRate}%</span>) is converted to an effective monthly rate using the formula: $(1 + \\text{Annual IBR})^{1/12} - 1$. <span style="color: blue;">[Calculated: ${(leaseData.monthlyIbr * 100).toFixed(4)}%]</span></li>
+                <li><strong>Initial Lease Liability:</strong> This is the present value of all future lease payments over the lease term, discounted at the Monthly IBR. It includes the present value of monthly payments (<span>${formatCurrency(leaseData.pvLeasePayments)}</span>), the present value of the Guaranteed Residual Value (<span>${formatCurrency(leaseData.pvRVG)}</span>), and any Upfront Fixed Payments (<span>${formatCurrency(leaseData.upfrontPayments)}</span>) made at or before commencement. <span style="color: blue;">[Total: ${formatCurrency(leaseData.initialLeaseLiability)}]</span></li>
+                <li><strong>Initial Right-of-Use (ROU) Asset:</strong> This is calculated as: Initial Lease Liability (<span>${formatCurrency(leaseData.initialLeaseLiability)}</span>) <strong>PLUS</strong> Initial Direct Costs (<span>${formatCurrency(leaseData.initialDirectCosts)}</span>) <strong>MINUS</strong> Lease Incentives Received (<span>${formatCurrency(leaseData.leaseIncentives)}</span>) <strong>PLUS</strong> Present Value of Estimated Restoration/Dismantling Costs (<span>${formatCurrency(leaseData.pvRestorationCosts)}</span>). <span style="color: blue;">[Total: ${formatCurrency(leaseData.initialRouAsset)}]</span></li>
+                <li><strong>Monthly Depreciation:</strong> The Initial ROU Asset (<span>${formatCurrency(leaseData.initialRouAsset)}</span>) is depreciated on a straight-line basis over the calculated Lease Term in Months (<span>${leaseData.leaseTermMonths} months</span>). <span style="color: blue;">[Calculated: ${formatCurrency(leaseData.monthlyDepreciation)}]</span></li>
+            `;
+
+            notesList.innerHTML = notesHtml;
+
+
+            // Show results section
+            document.getElementById('initialResults').classList.add('show');
+            document.getElementById('initialCalculationNotes').classList.add('show');
+        }
+
+        function generateMonthlyEntries() {
+            if (!leaseData || Object.keys(leaseData).length === 0) {
+                showAlert("Please calculate the lease details first by clicking 'Calculate Lease'.");
+                console.error("leaseData is not populated.");
+                return;
+            }
+            if (amortizationSchedule.length === 0) {
+                showAlert("Amortization schedule is empty. Please calculate the lease first.");
+                console.error("amortizationSchedule is empty.");
+                return;
+            }
+
+            const selectedMonth = document.getElementById('selectedMonth').value;
+            if (!selectedMonth) {
+                showAlert('Please select a month for the entries.');
+                console.error("No month selected.");
+                return;
+            }
+
+            const selectedDateForIndex = new Date(selectedMonth + '-01T00:00:00');
+            const commencementDateForIndex = leaseData.commencementDate; // Already a validated Date object from calculateLease
+
+            // Adjust index to account for "Month 0" in the amortizationSchedule array
+            // If lease starts July 2025, and selected month is July 2025, diff is 0. We want index 1 for Month 1 data.
+            // So, actual array index for Month 1 to N is monthsDifference + 1.
+            let monthIndexForArray = getMonthsDifference(commencementDateForIndex, selectedDateForIndex) + 1;
+
+            console.log('generateMonthlyEntries clicked. selectedMonth:', selectedMonth, 'commencementDate:', commencementDateForIndex, 'monthIndex (for array access):', monthIndexForArray);
+            console.log("DEBUG: amortizationSchedule.length:", amortizationSchedule.length);
+
+            // Check if monthIndexForArray is NaN or out of bounds
+            if (isNaN(monthIndexForArray) || monthIndexForArray < 1 || monthIndexForArray > leaseData.leaseTermMonths) {
+                showAlert('Selected month is outside the lease term or invalid. Please select a month within the lease period.');
+                console.error("Selected month index out of bounds or NaN:", monthIndexForArray, "Valid period range [1, LeaseTermMonths]:", leaseData.leaseTermMonths);
+                console.error("Amortization Schedule Content (for debugging):", amortizationSchedule);
+                return;
+            }
+
+            // Now, retrieve monthData. This should be safe if the above check is correct and array is properly populated.
+            const monthData = amortizationSchedule[monthIndexForArray];
+
+            // Defensive check for 'undefined' monthData - this should ideally be caught by the above bounds check now.
+            if (monthData === undefined || monthData === null) {
+                showAlert("Internal error: Lease data for the selected month could not be retrieved. Please try recalculating the lease or re-uploading the CSV.");
+                console.error("CRITICAL: monthData is undefined/null for monthIndexForArray:", monthIndexForArray, "Amortization Schedule Content:", amortizationSchedule);
+                return;
+            }
+
+
+            // Update currency labels in headers
+            document.getElementById('monthlyDebitHeader').textContent = `Debit (${leaseData.currencySymbol})`;
+            document.getElementById('monthlyCreditHeader').textContent = `Credit (${leaseData.currencySymbol})`;
+
+            // Display monthly calculations
+            const monthlyCalcGrid = document.getElementById('monthlyCalcGrid');
+            monthlyCalcGrid.innerHTML = '';
+
+            const monthlyCalcs = [
+                { label: 'Period Number', value: monthData.month },
+                { label: `Opening Lease Liability Balance (${leaseData.currencySymbol})`, value: formatCurrency(monthData.openingBalance) },
+                { label: `Monthly Depreciation Expense (${leaseData.currencySymbol})`, value: formatCurrency(monthData.depreciationPeriod) }, // Corrected to use monthlyDepreciation from period data
+                { label: `Monthly Interest Expense (${leaseData.currencySymbol})`, value: formatCurrency(monthData.interestExpense) },
+                { label: `Cash Payment (${leaseData.currencySymbol})`, value: formatCurrency(monthData.payment) },
+                { label: `Reduction in Lease Liability (${leaseData.currencySymbol})`, value: formatCurrency(monthData.principalReduction) },
+                { label: `Closing Lease Liability Balance (${leaseData.currencySymbol})`, value: formatCurrency(monthData.closingBalance) }
+            ];
+
+            monthlyCalcs.forEach(calc => {
+                const calcItem = document.createElement('div');
+                calcItem.className = 'calc-item';
+                calcItem.innerHTML = `
+                    <label>${calc.label}:</label>
+                    <span class="value">${calc.value}</span>
+                `;
+                monthlyCalcGrid.appendChild(calcItem);
+            });
+
+            // Display monthly journal entries
+            const monthlyJournalBody = document.getElementById('monthlyJournalBody');
+            monthlyJournalBody.innerHTML = '';
+
+            const monthlyEntries = [
+                { account: 'Depreciation Expense', debit: formatCurrency(monthData.depreciationPeriod), credit: '-' }, // Use from monthData
+                { account: 'Accumulated Depreciation - ROU Asset', debit: '-', credit: formatCurrency(monthData.depreciationPeriod) } // Use from monthData
+            ];
+
+            // Only add interest and payment entry if there was a payment for the period
+            if (monthData.payment > 0 || monthData.interestExpense > 0) {
+                 monthlyEntries.push(
+                    { account: 'Interest Expense', debit: formatCurrency(monthData.interestExpense), credit: '-' },
+                    { account: 'Lease Liability', debit: formatCurrency(monthData.principalReduction), credit: '-' },
+                    { account: 'Cash', debit: '-', credit: formatCurrency(monthData.payment) }
+                );
+            }
+
+
+            monthlyEntries.forEach(entry => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${entry.account}</td>
+                    <td class="${entry.debit !== '-' ? 'debit' : ''}">${entry.debit}</td>
+                    <td class="${entry.credit !== '-' ? 'credit' : ''}">${entry.credit}</td>
+                `;
+                monthlyJournalBody.appendChild(row);
+            });
+
+            // Populate Notes for Monthly Calculation
+            const monthlyNotesList = document.getElementById('monthlyNotesList');
+            monthlyNotesList.innerHTML = ''; // Clear previous notes
+
+            const monthName = selectedDateForIndex.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+            let monthlyNotesHtml = `
+                <li><strong>Period Number:</strong> This corresponds to month <span>${monthData.month}</span> of the lease term. <span style="color: blue;">[Period: ${monthData.month}]</span></li>
+                <li><strong>Opening Lease Liability:</strong> This is the remaining balance of the lease liability at the beginning of <span>${monthName}</span> (from the end of the previous period). <span style="color: blue;">[Amount: ${formatCurrency(monthData.openingBalance)}]</span></li>
+                <li><strong>Monthly Depreciation Expense:</strong> The ROU Asset (<span>${formatCurrency(leaseData.initialRouAsset)}</span>) is depreciated on a straight-line basis over <span>${leaseData.leaseTermMonths} months</span>. This amount is constant each month. <span style="color: blue;">[Calculated: ${formatCurrency(monthData.depreciationPeriod)}]</span></li>
+                <li><strong>Monthly Interest Expense:</strong> Calculated on the Opening Lease Liability for <span>${monthName}</span> (<span>${formatCurrency(monthData.openingBalance)}</span>) multiplied by the Monthly Discount Rate (<span>${(leaseData.monthlyIbr * 100).toFixed(4)}%</span>). <span style="color: blue;">[Calculated: ${formatCurrency(monthData.interestExpense)}]</span></li>
+                <li><strong>Cash Payment:</strong> The fixed monthly payment made by the lessee in <span>${monthName}</span>. <span style="color: blue;">[Amount: ${formatCurrency(monthData.payment)}]</span></li>
+                <li><strong>Reduction in Lease Liability (Principal):</strong> This is the portion of the cash payment that reduces the principal balance of the lease liability. It is the Cash Payment (<span>${formatCurrency(monthData.payment)}</span>) <strong>MINUS</strong> the Monthly Interest Expense (<span>${formatCurrency(monthData.interestExpense)}</span>). <span style="color: blue;">[Calculated: ${formatCurrency(monthData.principalReduction)}]</span></li>
+                <li><strong>Closing Lease Liability:</strong> The remaining balance of the lease liability at the end of <span>${monthName}</span>. This is the Opening Lease Liability (<span>${formatCurrency(monthData.openingBalance)}</span>) <strong>MINUS</strong> the Principal Reduction (<span>${formatCurrency(leaseData.principalReduction)}</span>). <span style="color: blue;">[Amount: ${formatCurrency(leaseData.closingBalance)}]</span></li>
+            `;
+            monthlyNotesList.innerHTML = monthlyNotesHtml;
+            document.getElementById('monthlyCalculationNotes').classList.add('show');
+            document.getElementById('monthlyResults').classList.add('show');
+        }
+
+        // Function to display Combined Amortization Table
+        function displayCombinedAmortization() {
+            const tableBody = document.getElementById('combinedAmortizationTableBody');
+            tableBody.innerHTML = ''; // Clear existing rows
+
+            if (amortizationSchedule.length === 0) {
+                console.warn("Amortization schedule is empty for combined table display.");
+                return;
+            }
+
+            // Update table headers with currency symbol
+            document.getElementById('llOpeningBalanceHeader').textContent = `Opening Balance (${leaseData.currencySymbol})`;
+            document.getElementById('llInterestExpenseHeader').textContent = `Interest Expense (${leaseData.currencySymbol})`;
+            document.getElementById('llCashPaymentHeader').textContent = `Cash Payment (${leaseData.currencySymbol})`;
+            document.getElementById('llPrincipalReductionHeader').textContent = `Principal Reduction (${leaseData.currencySymbol})`;
+            document.getElementById('llClosingBalanceHeader').textContent = `Closing Balance (${leaseData.currencySymbol})`;
+            document.getElementById('rouDepreciationPeriodHeader').textContent = `Depreciation of Period (${leaseData.currencySymbol})`;
+            document.getElementById('rouAccumulatedDepreciationHeader').textContent = `Accumulated Depreciation (${leaseData.currencySymbol})`;
+            document.getElementById('rouNetResidualValueROUHeader').textContent = `Net Residual Value ROU (${leaseData.currencySymbol})`;
+
+
+            amortizationSchedule.forEach(data => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${data.month === 0 ? '0 (Initial)' : data.month}</td>
+                    <td>${data.leaseDate}</td>
+                    <td>${formatCurrency(data.openingBalance)}</td>
+                    <td>${formatCurrency(data.interestExpense)}</td>
+                    <td>${formatCurrency(data.payment)}</td>
+                    <td>${formatCurrency(data.principalReduction)}</td>
+                    <td>${formatCurrency(data.closingBalance)}</td>
+                    <td>${formatCurrency(data.depreciationPeriod)}</td>
+                    <td>${formatCurrency(data.accumulatedDepreciation)}</td>
+                    <td>${formatCurrency(data.netResidualValueROU)}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+            document.getElementById('combinedAmortizationSection').classList.add('show'); // Ensure section is visible
+        }
+
+        // Function to download Combined Schedule as CSV
+        function downloadCombinedSchedule() {
+            if (amortizationSchedule.length === 0) {
+                showAlert("No amortization schedule generated. Please calculate the lease first.");
+                console.error("Amortization schedule is empty for combined download.");
+                return;
+            }
+
+            let csvContent = "";
+            const currencySymbol = leaseData.currencySymbol;
+
+            // --- Combined Schedule Header ---
+            csvContent += "Combined Lease Amortization Schedule (Lease Liability & ROU Asset)\n";
+            csvContent += "Month,Lease Period End Date,";
+            csvContent += `Opening Lease Liability (${currencySymbol}),Interest Expense (${currencySymbol}),Cash Payment (${currencySymbol}),Principal Reduction (${currencySymbol}),Closing Lease Liability (${currencySymbol}),`;
+            csvContent += `Depreciation of Period (${currencySymbol}),Accumulated Depreciation (${currencySymbol}),Net Residual Value ROU (${currencySymbol})\n`;
+
+
+            amortizationSchedule.forEach(row => {
+                const monthLabel = row.month === 0 ? '0 (Initial)' : row.month;
+                const values = [
+                    monthLabel,
+                    row.leaseDate,
+                    row.openingBalance.toFixed(2),
+                    row.interestExpense.toFixed(2),
+                    row.payment.toFixed(2),
+                    row.principalReduction.toFixed(2),
+                    row.closingBalance.toFixed(2),
+                    row.depreciationPeriod.toFixed(2),
+                    row.accumulatedDepreciation.toFixed(2),
+                    row.netResidualValueROU.toFixed(2)
+                ];
+                csvContent += values.map(e => `"${e}"`).join(",") + "\n"; // Enclose values in quotes for CSV
+            });
+
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute('download', 'IFRS16_Combined_Lease_Schedule.csv');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+
+        // Helper function to get months difference (for indexing amortization schedule)
+        function getMonthsDifference(d1, d2) {
+            // Ensure d1 and d2 are valid Date objects
+            if (isNaN(d1.getTime()) || isNaN(d2.getTime())) {
+                console.error("Invalid Date object passed to getMonthsDifference:", d1, d2);
+                return NaN; // Return NaN if dates are invalid
+            }
+            let months;
+            months = (d2.getFullYear() - d1.getFullYear()) * 12;
+            months -= d1.getMonth();
+            months += d2.getMonth();
+            return months;
+        }
+
+        // Initialize form with the specific 2025-07-01 date and fetch IFRS16 content
+        document.addEventListener('DOMContentLoaded', function() {
+            const commencementDateElement = document.getElementById('commencementDate');
+            if (!commencementDateElement.value) {
+                commencementDateElement.value = '2025-07-01';
+            }
+
+            // Set default currency to Euro
+            document.getElementById('currencySymbol').value = '€';
+
+            // Trigger calculation on load for default values to appear
+            calculateLease();
+        });
+    </script>
+</body>
+</html>
+
